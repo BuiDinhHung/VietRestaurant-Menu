@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Viet Restaurant Menu</title>
+    <style>
+        body { margin: 0; background: #111; height: 100vh; display: flex; justify-content: center; align-items: center; overflow: hidden; font-family: sans-serif; }
+        
+        /* Container chính */
+        #book-viewport { width: 95vw; height: 95vh; max-width: 1400px; position: relative; display: flex; justify-content: center; align-items: center; }
+
+        /* Nút chọn ngôn ngữ ban đầu */
+        #language-selector {
+            position: absolute; z-index: 1000; display: flex; gap: 20px;
+        }
+        .lang-btn {
+            padding: 20px 40px; font-size: 1.5rem; cursor: pointer; border: none; border-radius: 8px;
+            background: #e67e22; color: white; font-weight: bold; transition: 0.3s;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.5);
+        }
+        .lang-btn:hover { transform: scale(1.1); background: #d35400; }
+        
+        .hidden { display: none !important; }
+
+        /* Style cho trang sách */
+        .page { background-color: white; width: 100%; height: 100%; }
+        .page img { width: 100%; height: 100%; object-fit: contain; display: block; }
+
+        /* Nút chuyển đổi trên trang bìa */
+        .switch-btn {
+            position: absolute; bottom: 8%; left: 50%; transform: translateX(-50%);
+            padding: 12px 24px; font-size: 1rem; background: rgba(0, 0, 0, 0.8);
+            color: #fff; border: 2px solid #e67e22; border-radius: 50px;
+            cursor: pointer; z-index: 100; font-weight: bold;
+        }
+        /* Đảm bảo nút nổi bật trên mobile */
+        @media (max-width: 600px) { .switch-btn { padding: 10px 18px; font-size: 0.9rem; } }
+    </style>
+</head>
+<body>
+
+<div id="book-viewport">
+    <div id="language-selector">
+        <button class="lang-btn" onclick="initBook('en')">ENGLISH</button>
+        <button class="lang-btn" onclick="initBook('de')">DEUTSCH</button>
+    </div>
+    <div id="book-wrapper" style="width: 100%; height: 100%;"></div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/page-flip/dist/js/page-flip.browser.min.js"></script>
+
+<script>
+    const assets = {
+        en: ["0.png", "1.1.png", "2.2.png", "3.3.png", "4.4.png", "5.5.png", "6.6.png", "7.7.png", "10.10.png"],
+        de: ["0.png", "1.png", "2.png", "3.png", "4.png", "5.png", "6.png", "7.png", "10.png"]
+    };
+
+    let pageFlip = null;
+
+    function initBook(lang) {
+        // 1. Ẩn nút chọn ban đầu
+        document.getElementById('language-selector').classList.add('hidden');
+
+        // 2. Xóa bỏ hoàn toàn đối tượng cũ và nội dung cũ
+        if (pageFlip) {
+            pageFlip.destroy();
+            pageFlip = null;
+        }
+        
+        const wrapper = document.getElementById("book-wrapper");
+        wrapper.innerHTML = '<div id="book-canvas"></div>'; // Tạo mới canvas
+        const canvas = document.getElementById("book-canvas");
+        canvas.style.width = "100%";
+        canvas.style.height = "100%";
+
+        // 3. Tạo HTML cho các trang mới
+        const images = assets[lang];
+        images.forEach((src, index) => {
+            const pageDiv = document.createElement("div");
+            pageDiv.className = "page";
+            
+            // Container ảnh để xử lý kích thước
+            const img = document.createElement("img");
+            img.src = src;
+            pageDiv.appendChild(img);
+
+            // Nút bấm ở trang bìa (index 0)
+            if (index === 0) {
+                const btn = document.createElement("button");
+                btn.className = "switch-btn";
+                btn.innerHTML = (lang === 'en') ? "WECHSELN ZU DEUTSCH" : "SWITCH TO ENGLISH";
+                
+                // Quan trọng: Ngừng sự kiện lật khi bấm nút
+                btn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    initBook(lang === 'en' ? 'de' : 'en');
+                });
+                pageDiv.appendChild(btn);
+            }
+            canvas.appendChild(pageDiv);
+        });
+
+        // 4. Khởi tạo thư viện với độ trễ siêu nhỏ để trình duyệt kịp vẽ DOM
+        setTimeout(() => {
+            pageFlip = new St.PageFlip(canvas, {
+                width: 600,
+                height: 900,
+                size: "stretch",
+                autoSize: true,
+                maxShadowOpacity: 0.5,
+                showCover: true,
+                mobileScrollSupport: true,
+                usePortrait: true
+            });
+
+            pageFlip.loadFromHTML(document.querySelectorAll(".page"));
+        }, 50); 
+    }
+</script>
+
+</body>
+</html>
