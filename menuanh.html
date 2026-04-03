@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Menu Book</title>
+
+<style>
+body {
+  margin: 0;
+  background: #161f28;
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* khung ngoài */
+#book-viewport {
+  width: 90vw;
+  height: 90vh;
+  max-width: 1200px;
+}
+
+/* vùng sách */
+#book {
+  width: 100%;
+  height: 100%;
+}
+
+/* từng trang */
+.page {
+  background: white;
+}
+
+/* ảnh */
+.page img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+</style>
+</head>
+
+<body>
+
+<div id="book-viewport">
+  <div id="book"></div>
+</div>
+
+<!-- thư viện -->
+<script src="https://cdn.jsdelivr.net/npm/page-flip/dist/js/page-flip.browser.min.js"></script>
+
+<script>
+// 👉 danh sách 10 trang
+const images = [
+  "menuanh/1.png","menuanh/2.png","menuanh/3.png","menuanh/4.png","menuanh/5.png",
+  "menuanh/6.png","menuanh/7.png","menuanh/8.png","menuanh/9.png","menuanh/10.png"
+];
+
+const book = document.getElementById("book");
+
+// tạo HTML page
+images.forEach(src => {
+  const page = document.createElement("div");
+  page.className = "page";
+
+  const img = document.createElement("img");
+  img.src = src;
+
+  page.appendChild(img);
+  book.appendChild(page);
+});
+
+// khởi tạo PageFlip
+const pageFlip = new St.PageFlip(book, {
+  width: 600,
+  height: 800,
+
+  size: "stretch",
+  autoSize: true,
+
+  showCover: false,   // ✅ mở 2 trang ngay từ đầu
+  usePortrait: false, // ✅ luôn hiển thị 2 trang
+
+  maxShadowOpacity: 0.5
+});
+
+// load pages
+pageFlip.loadFromHTML(document.querySelectorAll(".page"));
+
+// 👉 đảm bảo mở trang 1–2
+pageFlip.flip(0);
+</script>
+
+</body>
+</html>
